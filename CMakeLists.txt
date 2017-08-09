@@ -1,0 +1,33 @@
+cmake_minimum_required(VERSION 3.8)
+project(bz)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(EXECUTABLE_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/")
+set(LIBRARY_OUTPUT_PATH "${PROJECT_SOURCE_DIR}/build/")
+
+set(SOURCE_FILES
+        src/Actor.cpp
+        src/Actor.h
+        src/Engine.cpp
+        src/Engine.h
+        src/main.cpp
+        src/Map.cpp
+        src/Map.h
+        include/libtcod.hpp)
+
+file(GLOB LIBRARIES "${PROJECT_SOURCE_DIR}/lib/*.dylib")
+message("LIBRARIES = ${LIBRARIES}")
+
+# add extra include directories
+include_directories(${PROJECT_SOURCE_DIR}/include
+        /usr/local/include)
+
+# add extra lib directories
+# link_directories(${LIBRARIES})
+
+add_executable(bz ${SOURCE_FILES})
+target_link_libraries(bz ${LIBRARIES})
+
+
+
