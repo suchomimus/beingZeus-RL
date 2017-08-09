@@ -6,6 +6,7 @@
 static const int ROOM_MAX_SIZE = 25;
 static const int ROOM_MIN_SIZE = 12;
 
+
 class BspListener: public ITCODBspCallback {
 private:
     Map &map;
@@ -46,7 +47,6 @@ Map::Map(int width, int height) : width(width), height(height) {
 
     // create living room
     createRoom(true, 20, 90, 60, 70);
-    addMonster(30,60);
     // create kitchen
     createRoom(false, 20, 70, 40, 50);
     // create service porch
@@ -55,6 +55,8 @@ Map::Map(int width, int height) : width(width), height(height) {
 
     // bedroom 2
     createRoom(false, 20, 30, 60, 45);
+
+    if (canWalk(30, 60)) addMonster(30, 60);
 }
 
 Map::~Map() {
@@ -115,23 +117,18 @@ void Map::render() const {
     static const TCODColor darkWall(TCODColor::darkerGrey);
     static const TCODColor darkGround(TCODColor::darkerGrey);
     static const TCODColor lightWall(TCODColor::grey);
-    static const TCODColor lightGround(TCODColor::grey);
+    static const TCODColor lightGround(TCODColor::darkGrey);
 
     for (int x=0; x < width; x++) {
         for (int y=0; y < height; y++) {
             if(isInFov(x,y)) {
-                TCODConsole::root->setCharForeground(x,y,
-                                                     isWall(x,y) ? lightWall : lightGround );
-                TCODConsole::root->setChar(x,y,
-                                           isWall(x,y) ? '#' : '.' );
+                TCODConsole::root->setCharForeground(x, y, isWall(x, y) ? lightWall : lightGround);
+                TCODConsole::root->setChar(x, y, isWall(x, y) ? '#' : '.');
             } else if (isExplored(x,y)) {
-                TCODConsole::root->setCharForeground(x,y,
-                                                     isWall(x,y) ? darkWall : darkGround );
-                TCODConsole::root->setChar(x,y,
-                                           isWall(x,y) ? '#' : '.' );
+                TCODConsole::root->setCharForeground(x, y, isWall(x, y) ? darkWall : darkGround);
+                TCODConsole::root->setChar(x, y, isWall(x, y) ? '#' : '.');
             } else if (!isExplored(x,y)) {
-                TCODConsole::root->setCharForeground(x,y,
-                                                     TCODColor::black );
+                TCODConsole::root->setCharForeground(x, y, TCODColor::black);
             }
         }
     }
@@ -139,12 +136,13 @@ void Map::render() const {
 
 void Map::addMonster(int x, int y) {
     TCODRandom *rng=TCODRandom::getInstance();
-    if ( rng->getInt(0,100) < 80 ) {
-        // create an rob
-        engine.actors.push(new Actor(x,y,'@',TCODColor::desaturatedGreen, "Robbie"));
-    } else {
-        // create a D
-        engine.actors.push(new Actor(x,y,'D',TCODColor::desaturatedRed, "Diana"));
+    int num = rng->getInt(0, 100);
+    if (num < 33) { // create a Robbie
+        engine.actors.push(new Actor(x, y, '@', TCODColor::desaturatedGreen, "Robbie"));
+    } else if (num > 32 && num < 66) { // create owner
+        engine.actors.push(new Actor(x, y, '@', TCODColor::desaturatedBlue, "Pleasure Slave"));
+    } else { // Create Diana
+        engine.actors.push(new Actor(x, y, 'D', TCODColor::flame, "Diana"));
     }
 }
 

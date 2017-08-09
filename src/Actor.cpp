@@ -4,21 +4,17 @@
 #include "Engine.h"
 #include <iostream>
 
-Actor::Actor(int x, int y, int ch, const TCODColor &col, std::string name) : x(x),y(y),ch(ch),col(col),name(name) {
+Actor::Actor(int x, int y, int ch, const TCODColor &col, std::string name)
+        : x(x), y(y), ch(ch), col(col), name(std::move(name)) {
 
 }
 
-Actor::~Actor() {}
+Actor::~Actor() = default;
 
 void Actor::render() {
   //std::cout << "rendering " << name << "\n";
   TCODConsole::root->setChar(x,y,ch);
   TCODConsole::root->setCharForeground(x,y,col);
-}
-
-void Actor::greet() {
-  std::cout << "Hello, my name is " + name + ". \n";
-
 }
 
 void Actor::update() {
@@ -30,7 +26,7 @@ bool Actor::moveOrAct(int x, int y) {
     for (auto i : engine.actors) {
         Actor *actor = i;
         if ( actor->x == x && actor->y == y ) {
-            std::cout << actor->name << " pets you and calls you a good boy.\n";
+            std::cout << actor->name << " pets you and calls you a good boy." << std::endl;
             return false;
         }
     }
