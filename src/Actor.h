@@ -1,3 +1,6 @@
+#ifndef ACTOR_H
+#define ACTOR_H
+
 #include <string>
 
 class Actor {
@@ -15,4 +18,7 @@ public :
     void update();
     bool moveOrAct(int x, int y);
 };
+
+
+#endif // ACTOR_H
 

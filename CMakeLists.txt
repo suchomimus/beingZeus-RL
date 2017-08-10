@@ -14,7 +14,7 @@ set(SOURCE_FILES
         src/main.cpp
         src/Map.cpp
         src/Map.h
-        include/libtcod.hpp)
+        include/libtcod.hpp src/BspListener.h src/Tile.h)
 
 file(GLOB LIBRARIES "${PROJECT_SOURCE_DIR}/lib/*.dylib")
 message("LIBRARIES = ${LIBRARIES}")

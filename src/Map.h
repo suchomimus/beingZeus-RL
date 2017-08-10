@@ -1,7 +1,7 @@
-struct Tile {
-    bool explored;
-    Tile() : explored(false) {}
-};
+#ifndef MAP_H
+#define MAP_H
+
+#include "Tile.h"
 
 class Map {
 public:
@@ -27,3 +27,5 @@ protected:
     void createRoom(bool first, int x1, int y1, int x2, int y2);
     void addMonster(int x, int y);
 };
+
+#endif // MAP_H

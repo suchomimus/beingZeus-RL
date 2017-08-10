@@ -6,10 +6,10 @@
 
 
 Engine::Engine() : gameStatus(STARTUP), fovRadius(15) {
-  TCODConsole::initRoot(110,110,"Being Zeus",false);
+  TCODConsole::initRoot(110,85,"Being Zeus",false);
   player = new Actor(40,25,'d',TCODColor::lighterSepia, "Zeus");
   actors.push(player);
-  map = new Map(100,100);
+  map = new Map(100,80);
 }
 
 Engine::~Engine() {

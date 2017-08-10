@@ -22,7 +22,7 @@ void Actor::update() {
 }
 
 bool Actor::moveOrAct(int x, int y) {
-    if ( engine.map->isWall(x,y) ) return false;
+    if (engine.map->isWall(x, y) ) return false;
     for (auto i : engine.actors) {
         Actor *actor = i;
         if ( actor->x == x && actor->y == y ) {
