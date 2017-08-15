@@ -1,6 +1,8 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
+#include "Gui.h"
+
 class Engine {
 public :
     enum GameStatus {
@@ -15,6 +17,7 @@ public :
     Actor *player;
     Map *map;
     int fovRadius;
+    Gui *gui;
 
     Engine();
     ~Engine();

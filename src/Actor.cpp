@@ -26,7 +26,7 @@ bool Actor::moveOrAct(int x, int y) {
     for (auto i : engine.actors) {
         Actor *actor = i;
         if ( actor->x == x && actor->y == y ) {
-            std::cout << actor->name << " pets you and calls you a good boy." << std::endl;
+            engine.gui->message(TCODColor::lightGrey,"%s pets you and calls you a good boy.",actor->name.c_str());
             return false;
         }
     }

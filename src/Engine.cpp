@@ -3,18 +3,23 @@
 #include "Actor.h"
 #include "Map.h"
 #include "Engine.h"
+#include "Gui.h"
 
 
 Engine::Engine() : gameStatus(STARTUP), fovRadius(15) {
-  TCODConsole::initRoot(110,85,"Being Zeus",false);
-  player = new Actor(40,25,'d',TCODColor::lighterSepia, "Zeus");
-  actors.push(player);
-  map = new Map(100,80);
+    TCODConsole::initRoot(110,80,"Being Zeus",false);
+    player = new Actor(40,25,'d',TCODColor::lighterSepia, "Zeus");
+    actors.push(player);
+    map = new Map(100,75);
+    gui = new Gui();
+    gui->message(TCODColor::lighterSepia,
+                 "Good Morning Zeus!");
 }
 
 Engine::~Engine() {
-  actors.clearAndDelete();
-  delete map;
+    actors.clearAndDelete();
+    delete map;
+    delete gui;
 }
 
 void Engine::update() {
@@ -53,6 +58,7 @@ void Engine::render() {
     // clear the console, draw map and all actors
     TCODConsole::root->clear();
     map->render();
+    gui->render();
     for(auto i : actors) {
         Actor *actor = i;
         if (map->isInFov(actor->x, actor->y)) {

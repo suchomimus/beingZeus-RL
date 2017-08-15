@@ -87,10 +87,6 @@ void Map::createRoom(bool first, int x1, int y1, int x2, int y2){
 }
 
 void Map::render() const {
-    static const TCODColor darkWall(TCODColor::darkerGrey);
-    static const TCODColor darkGround(TCODColor::darkerGrey);
-    static const TCODColor lightWall(TCODColor::grey);
-    static const TCODColor lightGround(TCODColor::darkGrey);
 
     for (int x=0; x < width; x++) {
         for (int y=0; y < height; y++) {
@@ -98,7 +94,7 @@ void Map::render() const {
                 TCODConsole::root->setCharForeground(x, y, tiles[x+y*width].inFovCol);
                 TCODConsole::root->setChar(x, y, isWall(x, y) ? 254 : '.');
             } else if (isExplored(x,y)) {
-                TCODConsole::root->setCharForeground(x, y, isWall(x, y) ? darkWall : darkGround);
+                TCODConsole::root->setCharForeground(x, y, tiles[x+y*width].exploredCol);
                 TCODConsole::root->setChar(x, y, isWall(x, y) ? 254 : '.');
             } else if (!isExplored(x,y)) {
                 TCODConsole::root->setCharForeground(x, y, TCODColor::black);
@@ -113,7 +109,7 @@ void Map::addMonster(int x, int y) {
     if (num < 33) { // create a Robbie
         engine.actors.push(new Actor(x, y, '@', TCODColor::desaturatedGreen, "Robbie"));
     } else if (num > 32 && num < 66) { // create owner
-        engine.actors.push(new Actor(x, y, '@', TCODColor::desaturatedBlue, "Pleasure Slave"));
+        engine.actors.push(new Actor(x, y, 'c', TCODColor::yellow, "Cillian"));
     } else { // Create Diana
         engine.actors.push(new Actor(x, y, 'D', TCODColor::flame, "Diana"));
     }
