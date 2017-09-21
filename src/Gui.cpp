@@ -5,9 +5,10 @@
 #include <libtcod.hpp>
 #include <cstring>
 #include "Gui.h"
+#include "Engine.h"
 
 
-static const int PANEL_HEIGHT=7;
+static const int PANEL_HEIGHT=15;
 static const int BAR_WIDTH=20;
 static const int MSG_X=BAR_WIDTH+2;
 static const int MSG_HEIGHT=PANEL_HEIGHT-1;
@@ -34,7 +35,8 @@ Gui::Message::~Message() {
 void Gui::render() {
     con->setDefaultBackground(TCODColor::black);
     con->clear();
-    renderBar(1,1,BAR_WIDTH,"Love Points", 10, 12, TCODColor::lightRed, TCODColor::darkerRed);
+    renderBar(1,1,BAR_WIDTH,"Love Points", engine.player->curHP, engine.player->maxHP,
+              TCODColor::lightRed, TCODColor::darkerRed);
     int y=1;
     float colorCoef=0.4f;
     for (Message **it=log.begin(); it != log.end(); it++) {
@@ -46,7 +48,7 @@ void Gui::render() {
             colorCoef+=0.3f;
         }
     }
-    TCODConsole::blit(con,0,0,100,PANEL_HEIGHT,TCODConsole::root,0,80-PANEL_HEIGHT);
+    TCODConsole::blit(con,0,0,100,PANEL_HEIGHT,TCODConsole::root,0,95-PANEL_HEIGHT);
 }
 
 
@@ -64,6 +66,14 @@ void Gui::renderBar(int x, int y, int width, const char *name, float value, floa
         con->printEx(x+width/2,y,TCOD_BKGND_NONE, TCOD_CENTER,
         "%s : %g/%g", name, value, maxValue);
     }
+    else {
+        con->setDefaultBackground(barColor);
+        con->rect(x, y, barWidth, 1, false, TCOD_BKGND_SET);
+        con->setDefaultForeground(TCODColor::white);
+        con->printEx(x+width/2,y,TCOD_BKGND_NONE, TCOD_CENTER,
+                     "Zeus needs love!");
+    }
+
 
 }
 

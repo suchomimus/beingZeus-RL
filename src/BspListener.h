@@ -28,13 +28,13 @@ public:
             h=rng->getInt(minRoomSize, node->h-2);
             x=rng->getInt(node->x+1, node->x+node->w-w-1);
             y=rng->getInt(node->y+1, node->y+node->h-h-1);
-            map.createRoom(roomNum == 0, x, y, x+w-1, y+h-1);
+            map.createRoom(false, x, y, x+w-1, y+h-1, false);
 
             // otherwise rooms get created and hallways dug
             if (roomNum != 0) {
                 // dig a hallway
-                map.dig(lastx,lasty,x+w/2,lasty);
-                map.dig(x+w/2,lasty,x+w/2,y+h/2);
+                map.dig(lastx,lasty,x+w/2,lasty, false);
+                map.dig(x+w/2,lasty,x+w/2,y+h/2, false);
             }
 
             lastx=x+w/2;

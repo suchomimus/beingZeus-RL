@@ -10,6 +10,8 @@
 struct Tile {
     bool explored = false;
     bool isWall = true;
+    bool isGrass = false;
+    bool isDoor = true;
     int c; // ACSII character
     TCODColor inFovCol = TCODColor::grey;
     TCODColor exploredCol = TCODColor::darkerGrey;

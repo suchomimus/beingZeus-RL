@@ -2,6 +2,8 @@
 #define ENGINE_H
 
 #include "Gui.h"
+#include "Actor.h"
+#include "Map.h"
 
 class Engine {
 public :

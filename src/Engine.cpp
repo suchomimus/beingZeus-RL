@@ -7,10 +7,10 @@
 
 
 Engine::Engine() : gameStatus(STARTUP), fovRadius(15) {
-    TCODConsole::initRoot(110,80,"Being Zeus",false);
+    TCODConsole::initRoot(110,100,"Being Zeus",false);
     player = new Actor(40,25,'d',TCODColor::lighterSepia, "Zeus");
     actors.push(player);
-    map = new Map(100,75);
+    map = new Map(100,80);
     gui = new Gui();
     gui->message(TCODColor::lighterSepia,
                  "Good Morning Zeus!");
@@ -40,6 +40,9 @@ void Engine::update() {
     }
     if (dx != 0 || dy != 0) {
         gameStatus = NEW_TURN;
+        if (player->curHP > 0) {
+            player->curHP = player->curHP - 1;
+        }
         if (player->moveOrAct(player->x+dx, player->y+dy)){
             map->computeFov();
         }
@@ -62,7 +65,9 @@ void Engine::render() {
     for(auto i : actors) {
         Actor *actor = i;
         if (map->isInFov(actor->x, actor->y)) {
+
             actor->render();
+
         }
     }
 }
