@@ -34,11 +34,12 @@ protected:
     friend class BspListener;
 
     void dig(int x1, int y1, int x2, int y2, bool isYard);
-    void createRoom(bool first, int x1, int y1, int x2, int y2, bool isYard);
+    void createRoom(bool first, int x1, int y1, int x2, int y2, bool isYard, bool monsters);
     void createYard(int x1, int x2, int width, int height);
     void createHouse(int x1, int y1);
     void makeDoor(int x, int y, bool isSecret);
-    void addMonster(int x, int y);
+    void addInitMonsters();
+    void addRandomMonster(int x, int y);
 
 };
 

@@ -10,6 +10,7 @@ public :
     int ch; // Actor ASCII code
     int maxHP = 100; //
     int curHP = 100;
+    bool isPlayer = false;
 
     std::string name; //character name
     TCODColor col; // Actor color

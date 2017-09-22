@@ -9,9 +9,11 @@
 Engine::Engine() : gameStatus(STARTUP), fovRadius(15) {
     TCODConsole::initRoot(110,100,"Being Zeus",false);
     player = new Actor(40,25,'d',TCODColor::lighterSepia, "Zeus");
+    player->isPlayer = true;
     actors.push(player);
     map = new Map(100,80);
     gui = new Gui();
+
     gui->message(TCODColor::lighterSepia,
                  "Good Morning Zeus!");
 }
@@ -24,6 +26,7 @@ Engine::~Engine() {
 
 void Engine::update() {
     TCOD_key_t key;
+
     if ( gameStatus == STARTUP ) {
         map->computeFov();
     }
@@ -40,7 +43,9 @@ void Engine::update() {
     }
     if (dx != 0 || dy != 0) {
         gameStatus = NEW_TURN;
-        if (player->curHP > 0) {
+        ++this->turn;
+        std::cout << "turn " << this->turn << "\n";
+        if (player->curHP > 0 && !(turn % 5)) {
             player->curHP = player->curHP - 1;
         }
         if (player->moveOrAct(player->x+dx, player->y+dy)){
@@ -50,8 +55,11 @@ void Engine::update() {
     if (gameStatus == NEW_TURN){
         for (auto i : engine.actors){
             Actor *actor = i;
-            if (actor != player) {
+
+            if (!actor->isPlayer) {
+                std::cout << "updating " << actor->name << "\n";
                 actor->update();
+
             }
         }
     }

@@ -9,7 +9,7 @@
 
 
 static const int PANEL_HEIGHT=15;
-static const int BAR_WIDTH=20;
+static const int BAR_WIDTH=22;
 static const int MSG_X=BAR_WIDTH+2;
 static const int MSG_HEIGHT=PANEL_HEIGHT-1;
 

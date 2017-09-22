@@ -28,7 +28,7 @@ public:
             h=rng->getInt(minRoomSize, node->h-2);
             x=rng->getInt(node->x+1, node->x+node->w-w-1);
             y=rng->getInt(node->y+1, node->y+node->h-h-1);
-            map.createRoom(false, x, y, x+w-1, y+h-1, false);
+            map.createRoom(false, x, y, x + w - 1, y + h - 1, false, true);
 
             // otherwise rooms get created and hallways dug
             if (roomNum != 0) {

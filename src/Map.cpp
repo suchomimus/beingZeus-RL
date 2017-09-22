@@ -32,6 +32,9 @@ Map::Map(int width, int height) : width(width), height(height) {
     bspQ2.traverseInvertedLevelOrder(&listener,nullptr);
     bspQ4.traverseInvertedLevelOrder(&listener,nullptr);
 
+    //add init monsters
+    addInitMonsters();
+
 }
 
 Map::~Map() {
@@ -105,27 +108,26 @@ void Map::dig(int x1, int y1, int x2, int y2, bool isYard) {
     }
 }
 
-void Map::createRoom(bool first, int x1, int y1, int x2, int y2, bool isYard){
+void Map::createRoom(bool first, int x1, int y1, int x2, int y2, bool isYard, bool monsters) {
     dig (x1, y1, x2, y2, isYard);
-    std::cout << "x1 = " << x1 << "\ny1 = " << y1 << "\nx2 = " << x2 << "\ny2 = " << y2 << "\n";
 
     if (first) {
         engine.player->x=(x1+x2)/2;
         engine.player->y=(y1+y2)/2;
     }
-    if (!first) {
+    if (monsters) {
         if (canWalk((x1 + x2) / 2, (y1 + y2) / 2)) {
             TCODRandom *rng=TCODRandom::getInstance();
-            int num = rng->getInt(0, 100);
-            if (num > 80) {
-                addMonster((x1 + x2) / 2, (y1 + y2) / 2);
-            }
+            int num = rng->getInt(0, 3);
+            for (int i = 0; i < num; i++)
+                addRandomMonster((x1 + x2) / 2, (y1 + y2) / 2);
         }
     }
 }
 
+
 void Map::createYard(int x1, int y1, int x2, int y2) {
-    createRoom(false, x1, y1, x2, y2, true);
+    createRoom(false, x1, y1, x2, y2, true, false);
     dig(Q2x-10,Q2y+10, Q2x+10,Q2y+10, false);
     //secret door to BSP dungeons
     makeDoor(Q2x-11, Q2y+10, true);
@@ -135,45 +137,45 @@ void Map::createYard(int x1, int y1, int x2, int y2) {
 void Map::createHouse(int x1, int y1) {
 //40, 0
     // laundry room
-    createRoom(false, x1+6, y1+4, x1+13, y1+13, false);
+    createRoom(false, x1 + 6, y1 + 4, x1 + 13, y1 + 13, false, false);
     //back door
     makeDoor(x1+8, y1+3, false);
     //open walkway
     dig(x1+8, y1+14, x1+10, y1+14, false);
     //kitchen
-    createRoom(false, x1+6, y1+15, x1+13, y1+27, false);
+    createRoom(false, x1 + 6, y1 + 15, x1 + 13, y1 + 27, false, false);
     //open walkway
     dig(x1+6, y1+28, x1+11, y1+28, false);
     //living room
-    createRoom(true, x1+6, y1+29, x1+22, y1+38, false);
+    createRoom(true, x1 + 6, y1 + 29, x1 + 22, y1 + 38, false, false);
     //bedroom 1
-    createRoom(false, x1+15, y1+4, x1+23, y1+13, false);
+    createRoom(false, x1 + 15, y1 + 4, x1 + 23, y1 + 13, false, false);
     // bedroom door
     makeDoor(x1+14 , y1+8, false);
     // Bedroom 1 closet
-    createRoom(false, x1+25, y1+4, x1+32, y1+7, false);
+    createRoom(false, x1 + 25, y1 + 4, x1 + 32, y1 + 7, false, false);
     // closet door
     makeDoor(x1+24, y1+6, false);
     // bedroom bathroom
-    createRoom(false, x1+25, y1+9, x1+32, y1+13, false);
+    createRoom(false, x1 + 25, y1 + 9, x1 + 32, y1 + 13, false, false);
     // bathroom door
     makeDoor(x1+24, y1+10, false);
     // Bedroom 2
-    createRoom(false, x1+24, y1+29, x1+32, y1+38, false);
+    createRoom(false, x1 + 24, y1 + 29, x1 + 32, y1 + 38, false, false);
     // bedroom 2 door
     makeDoor(x1+25, y1+28, false);
     // Bedroom 3
-    createRoom(false, x1+24 , y1+15, x1+32, y1+22, false);
+    createRoom(false, x1 + 24, y1 + 15, x1 + 32, y1 + 22, false, false);
     makeDoor(x1+26, y1+23, false);
     // hallways
-    createRoom(false, x1+18, y1+24, x1+22, y1+28, false);
-    createRoom(false, x1+22, y1+24, x1+27, y1+27, false);
+    createRoom(false, x1 + 18, y1 + 24, x1 + 22, y1 + 28, false, false);
+    createRoom(false, x1 + 22, y1 + 24, x1 + 27, y1 + 27, false, false);
     // secret hallway door
     makeDoor(x1+28, y1+25, true);
     // a secret tunnel going nowhere for now
     dig(x1+29, y1+25, x1+55, y1+25, false);
     // hall bathroom
-    createRoom(false, x1+16, y1+15, x1+21, y1+22, false);
+    createRoom(false, x1 + 16, y1 + 15, x1 + 21, y1 + 22, false, true);
     // bathroom door
     makeDoor(x1+20, y1+23, false);
     //side yard 1
@@ -219,16 +221,36 @@ void Map::render() const {
     }
 }
 
-void Map::addMonster(int x, int y) {
+void Map::addRandomMonster(int x, int y) {
     TCODRandom *rng=TCODRandom::getInstance();
-    int num = rng->getInt(0, 100);
-    if (num < 33) { // create a Robbie
-        engine.actors.push(new Actor(x, y, '@', TCODColor::desaturatedGreen, "Robbie"));
-    } else if (num > 32 && num < 66) { // create owner
-        engine.actors.push(new Actor(x, y, 'c', TCODColor::yellow, "Cillian"));
-    } else { // Create Diana
-        engine.actors.push(new Actor(x, y, 'D', TCODColor::flame, "Diana"));
+    int num = rng->getInt(0, 6);
+    if (num == 0){
+        engine.actors.push(new Actor(x, y, 'S', TCODColor::flame, "Satan"));
+    }else if (num == 1){
+        engine.actors.push(new Actor(x, y, 'e', TCODColor::darkSepia, "echidna"));
+    }else if (num == 2){
+        //SNAAAAAKES!
+        engine.actors.push(new Actor(x, y, 's', TCODColor::green, "snake"));
+        engine.actors.push(new Actor(x, y, 's', TCODColor::green, "snake"));
+        engine.actors.push(new Actor(x, y, 's', TCODColor::green, "snake"));
+    }else if (num == 3){
+        engine.actors.push(new Actor(x, y, 'M', TCODColor::darkerSepia, "moose"));
+    }else if (num == 4){
+        engine.actors.push(new Actor(x, y, 'c', TCODColor::orange, "orange cat"));
+    }else if (num == 5){
+        engine.actors.push(new Actor(x, y, '@', TCODColor::white, "Criddler Charlie"));
     }
+}
+
+void Map::addInitMonsters(){
+    //load monsters to their initial starting points
+    engine.actors.push(new Actor(29, 71, '@', TCODColor::desaturatedGreen, "Robbie"));
+    engine.actors.push(new Actor(18, 48, 'c', TCODColor::yellow, "Cillian"));
+    engine.actors.push(new Actor(51, 10, 'D', TCODColor::flame, "Diana"));
+    engine.actors.push(new Actor(25, 25, 'd', TCODColor::amber, "Honey"));
+    engine.actors.push(new Actor(52, 10, 'd', TCODColor::darkGrey, "Diaper"));
+
+
 }
 
 bool Map::canWalk(int x, int y) const {

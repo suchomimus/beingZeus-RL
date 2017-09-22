@@ -19,6 +19,7 @@ public :
     Actor *player;
     Map *map;
     int fovRadius;
+    int turn;
     Gui *gui;
 
     Engine();
