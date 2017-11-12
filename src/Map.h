@@ -5,8 +5,8 @@
 
 class Map {
 public:
-    int width;
-    int height;
+    const int width;
+    const int height;
 
     Map(int width, int height);
     ~Map();
@@ -22,14 +22,14 @@ protected:
 
     Tile *tiles;
     TCODMap *map;
-    int Q1x = 0;
-    int Q1y = 0;
-    int Q2x = width/2;
-    int Q2y = 0;
-    int Q3x = 0;
-    int Q3y = height/2;
-    int Q4x = width/2;
-    int Q4y = height/2;
+    const int Q1x = 0;
+    const int Q1y = 0;
+    const int Q2x = width/2;
+    const int Q2y = 0;
+    const int Q3x = 0;
+    const int Q3y = height/2;
+    const int Q4x = width/2;
+    const int Q4y = height/2;
 
     friend class BspListener;
 

@@ -2,10 +2,8 @@
 // Created by Ryan C Brown on 8/14/17.
 //
 
-#include <libtcod.hpp>
 #include <cstring>
-#include "Gui.h"
-#include "Engine.h"
+#include "main.h"
 
 
 static const int PANEL_HEIGHT=15;
@@ -35,7 +33,7 @@ Gui::Message::~Message() {
 void Gui::render() {
     con->setDefaultBackground(TCODColor::black);
     con->clear();
-    renderBar(1,1,BAR_WIDTH,"Love Points", engine.player->curHP, engine.player->maxHP,
+    renderBar(1,1,BAR_WIDTH,"Love Points", engine.player->destructible->curHP, engine.player->destructible->maxHP,
               TCODColor::lightRed, TCODColor::darkerRed);
     int y=1;
     float colorCoef=0.4f;

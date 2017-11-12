@@ -1,5 +1,4 @@
-#include "libtcod.hpp"
-#include "Engine.h"
+#include "main.h"
 
 Engine engine;
 

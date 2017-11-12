@@ -6,8 +6,14 @@
 #define BZ_ATTACKER_H
 
 
-class Attacker {
+#include "Actor.h"
 
+class Attacker {
+public :
+    float power; // hit points given
+
+    Attacker(float power);
+    void attack(Actor * owner, Actor * target);
 };
 
 

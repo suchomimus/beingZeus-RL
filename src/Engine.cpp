@@ -1,64 +1,41 @@
 #include <iostream>
-#include "libtcod.hpp"
-#include "Actor.h"
-#include "Map.h"
-#include "Engine.h"
-#include "Gui.h"
+#include "main.h"
 
 
 Engine::Engine() : gameStatus(STARTUP), fovRadius(15) {
     TCODConsole::initRoot(110,100,"Being Zeus",false);
-    player = new Actor(40,25,'d',TCODColor::lighterSepia, "Zeus");
+    player = std::make_shared<Actor>(40,25,'d',TCODColor::lighterSepia, "Zeus");
     player->isPlayer = true;
-    actors.push(player);
-    map = new Map(100,80);
-    gui = new Gui();
+    player->destructible = new PlayerDestructible(100,5,"your cadaver");
+    player->attacker = new Attacker(5);
+    player->ai = new PlayerAi();
+    // player starting position
+    player->x = 20;
+    player->y = 20;
 
+    actors.push_back(player);
+    gui = new Gui();
     gui->message(TCODColor::lighterSepia,
                  "Good Morning Zeus!");
 }
 
 Engine::~Engine() {
-    actors.clearAndDelete();
-    delete map;
     delete gui;
 }
 
 void Engine::update() {
-    TCOD_key_t key;
-
     if ( gameStatus == STARTUP ) {
         map->computeFov();
     }
     gameStatus = IDLE;
-    TCODSystem::checkForEvent(TCOD_EVENT_KEY_PRESS, &key, nullptr);
-    int dx = 0;
-    int dy = 0;
-    switch(key.vk) {
-        case TCODK_UP : dy = -1; break;
-        case TCODK_DOWN : dy = 1; break;
-        case TCODK_LEFT : dx = -1; break;
-        case TCODK_RIGHT : dx = 1; break;
-        default:break;
-    }
-    if (dx != 0 || dy != 0) {
-        gameStatus = NEW_TURN;
-        ++this->turn;
-        std::cout << "turn " << this->turn << "\n";
-        if (player->curHP > 0 && !(turn % 5)) {
-            player->curHP = player->curHP - 1;
-        }
-        if (player->moveOrAct(player->x+dx, player->y+dy)){
-            map->computeFov();
-        }
-    }
+    TCODSystem::checkForEvent(TCOD_EVENT_KEY_PRESS, &lastKey, nullptr);
+    player->update();
     if (gameStatus == NEW_TURN){
-        for (auto i : engine.actors){
-            Actor *actor = i;
-
-            if (!actor->isPlayer) {
-                std::cout << "updating " << actor->name << "\n";
+        for (const auto &actor : engine.actors){
+            //update all actors in FoV who is not the player
+            if (!actor->isPlayer && engine.map->isInFov(actor->x, actor->y)) {
                 actor->update();
+                std::cout << "actor ref count " << actor.use_count() << "\n";
 
             }
         }
@@ -70,12 +47,10 @@ void Engine::render() {
     TCODConsole::root->clear();
     map->render();
     gui->render();
-    for(auto i : actors) {
-        Actor *actor = i;
+    for(const auto &actor : actors) {
         if (map->isInFov(actor->x, actor->y)) {
-
             actor->render();
-
         }
     }
 }
+

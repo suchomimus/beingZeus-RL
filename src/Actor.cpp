@@ -1,15 +1,11 @@
-#include "libtcod.hpp"
-#include "Actor.h"
-#include "Map.h"
-#include "Engine.h"
+#include "main.h"
 #include <iostream>
 
-Actor::Actor(int x, int y, int ch, const TCODColor &col, std::string name)
-        : x(x), y(y), ch(ch), col(col), name(std::move(name)) {
-    std::cout << "Created a " << this->name << "\n";
+Actor::Actor(int x, int y, int ch, const TCODColor &col, const char *name)
+        : x(x), y(y), ch(ch), col(col), name(name),
+        blocks(true), attacker(nullptr), destructible(nullptr){
+    std::cout << "Created " << this->name << "\n";
 }
-
-Actor::~Actor() = default;
 
 void Actor::render() {
   TCODConsole::root->setChar(x,y,ch);
@@ -17,55 +13,24 @@ void Actor::render() {
 }
 
 void Actor::update() {
-    // move randomly
-    TCODRandom *rng = TCODRandom::getInstance();
-    int num = rng->getInt(0, 20); // bigger number = less movement
-    if (!this->isPlayer) {
-        switch (num) {
-            case 0 :
-                this->moveOrAct(this->x + 1, this->y);
-                break;
-            case 1 :
-                this->moveOrAct(this->x - 1, this->y);
-                break;
-            case 2 :
-                this->moveOrAct(this->x, this->y + 1);
-                break;
-            case 3 :
-                this->moveOrAct(this->x, this->y - 1);
-                break;
-            case 4 :
-                this->moveOrAct(this->x + 1, this->y + 1);
-                break;
-            case 5 :
-                this->moveOrAct(this->x + 1, this->y - 1);
-                break;
-            case 6 :
-                this->moveOrAct(this->x - 1, this->y + 1);
-                break;
-            case 7 :
-                this->moveOrAct(this->x - 1, this->y - 1);
-                break;
-            default:
-                break;
-        }
-    }
+    if ( ai ) ai->update(this);
 }
 
 
 bool Actor::moveOrAct(int x, int y) {
+    // if its a wall we can't go there
+
     if (engine.map->isWall(x, y)) {
         return false;
     }
-    for (auto i : engine.actors) {
-        Actor *actor = i;
-        if (actor->x == x && actor->y == y) {
-            if (this->isPlayer && engine.map->isInFov(x, y)) {
-                if (engine.player->curHP < engine.player->maxHP - 9) {
-                    engine.player->curHP = engine.player->curHP + 10;
-
-                }
-                engine.gui->message(actor->col, "%s says \"You're a good boy!\"", actor->name.c_str());
+    // check other actor positions.  We can't walk on people
+    for (auto &actor : engine.actors) {
+        if (actor->blocks && actor->x == x && actor->y == y && engine.map->isInFov(actor->x, actor->y)) {
+            if (this->isPlayer && this->destructible->curHP < this->destructible->maxHP - 9) {
+                // pet that dog and give him love
+                engine.player->destructible->curHP = engine.player->destructible->curHP + 10;
+                // TODO speech property for actors
+                engine.gui->message(actor->col, "%s says \"You're a good boy!\"", actor->name);
             }
 
             return false;

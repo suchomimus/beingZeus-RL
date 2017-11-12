@@ -1,12 +1,8 @@
 #include <iostream>
-#include "libtcod.hpp"
-#include "Map.h"
-#include "Actor.h"
-#include "Engine.h"
-#include "BspListener.h"
+#include "main.h"
 
-static const int ROOM_MAX_SIZE = 20;
-static const int ROOM_MIN_SIZE = 8;
+static const auto ROOM_MAX_SIZE = 20;
+static const auto ROOM_MIN_SIZE = 8;
 
 Map::Map(int width, int height) : width(width), height(height) {
     tiles = new Tile[width*height];
@@ -112,15 +108,15 @@ void Map::createRoom(bool first, int x1, int y1, int x2, int y2, bool isYard, bo
     dig (x1, y1, x2, y2, isYard);
 
     if (first) {
-        engine.player->x=(x1+x2)/2;
-        engine.player->y=(y1+y2)/2;
+        //engine.player->x=(x1+x2)/2;
+        //engine.player->y=(y1+y2)/2;
     }
     if (monsters) {
         if (canWalk((x1 + x2) / 2, (y1 + y2) / 2)) {
             TCODRandom *rng=TCODRandom::getInstance();
             int num = rng->getInt(0, 3);
             for (int i = 0; i < num; i++)
-                addRandomMonster((x1 + x2) / 2, (y1 + y2) / 2);
+                addRandomMonster((x1 + i + x2) / 2, (y1 + i + y2) / 2);
         }
     }
 }
@@ -148,6 +144,8 @@ void Map::createHouse(int x1, int y1) {
     dig(x1+6, y1+28, x1+11, y1+28, false);
     //living room
     createRoom(true, x1 + 6, y1 + 29, x1 + 22, y1 + 38, false, false);
+    // front door
+    makeDoor(20,79, false);
     //bedroom 1
     createRoom(false, x1 + 15, y1 + 4, x1 + 23, y1 + 13, false, false);
     // bedroom door
@@ -193,7 +191,7 @@ void Map::makeDoor(int x, int y, bool isSecret) {
     tiles[x+y*width].isDoor=true;
     tiles[x+y*width].isWall=false;
     tiles[x+y*width].c='+';
-    tiles[x+y*width].inFovCol=TCODColor::sepia;
+    tiles[x+y*width].inFovCol=TCODColor::lightSepia;
 
     if (isSecret) {
         // make it look like a wall
@@ -222,33 +220,104 @@ void Map::render() const {
 }
 
 void Map::addRandomMonster(int x, int y) {
+
+    // define our monster based on RNG
     TCODRandom *rng=TCODRandom::getInstance();
     int num = rng->getInt(0, 6);
     if (num == 0){
-        engine.actors.push(new Actor(x, y, 'S', TCODColor::flame, "Satan"));
+        auto satan = std::make_unique<Actor>(x, y, 'S', TCODColor::flame, "Satan");
+        satan->blocks = true;
+        satan->destructible = new MonsterDestructible(20, 2, "dead demon");
+        satan->attacker = new Attacker(10);
+        satan->ai = new MonsterAi();
+        engine.actors.push_back(std::move(satan));
     }else if (num == 1){
-        engine.actors.push(new Actor(x, y, 'e', TCODColor::darkSepia, "echidna"));
+        engine.actors.push_back(std::make_unique<Actor>(x, y, 'e', TCODColor::darkSepia, "echidna"));
     }else if (num == 2){
         //SNAAAAAKES!
-        engine.actors.push(new Actor(x, y, 's', TCODColor::green, "snake"));
-        engine.actors.push(new Actor(x, y, 's', TCODColor::green, "snake"));
-        engine.actors.push(new Actor(x, y, 's', TCODColor::green, "snake"));
+        auto snake1 = std::make_unique<Actor>(x, y, 's', TCODColor::green, "snake");
+        snake1->blocks = true;
+        snake1->destructible = new MonsterDestructible(5, 0, "dead snake");
+        snake1->attacker = new Attacker(1);
+        snake1->ai = new MonsterAi();
+        auto snake2 = std::make_unique<Actor>(x+1, y+1, 's', TCODColor::green, "snake");
+        snake2->blocks = true;
+        snake2->destructible = new MonsterDestructible(5, 0, "dead snake");
+        snake2->attacker = new Attacker(1);
+        snake2->ai = new MonsterAi();
+        auto snake3 = std::make_unique<Actor>(x-1, y-1, 's', TCODColor::green, "snake");
+        snake3->blocks = true;
+        snake3->destructible = new MonsterDestructible(5, 0, "dead snake");
+        snake3->attacker = new Attacker(1);
+        snake3->ai = new MonsterAi();
+
+        engine.actors.push_back(std::move(snake1));
+        engine.actors.push_back(std::move(snake2));
+        engine.actors.push_back(std::move(snake3));
     }else if (num == 3){
-        engine.actors.push(new Actor(x, y, 'M', TCODColor::darkerSepia, "moose"));
+        auto moose = std::make_unique<Actor>(x, y, 'M', TCODColor::sepia, "moose");
+        moose->blocks = true;
+        moose->destructible = new MonsterDestructible(20, 0, "dead moose");
+        moose->attacker = new Attacker(8);
+        moose->ai = new MonsterAi();
+        engine.actors.push_back(std::move(moose));
     }else if (num == 4){
-        engine.actors.push(new Actor(x, y, 'c', TCODColor::orange, "orange cat"));
+        auto orangecat = std::make_unique<Actor>(x, y, 'o', TCODColor::orange, "orange cat");
+        orangecat->blocks = true;
+        orangecat->destructible = new MonsterDestructible(10, 0, "dead cat");
+        orangecat->attacker = new Attacker(4);
+        orangecat->ai = new MonsterAi();
+        engine.actors.push_back(std::move(orangecat));
     }else if (num == 5){
-        engine.actors.push(new Actor(x, y, '@', TCODColor::white, "Criddler Charlie"));
+        auto criddler = std::make_unique<Actor>(x, y, 'o', TCODColor::orange, "Criddler Charlie");
+        criddler->blocks = true;
+        criddler->destructible = new MonsterDestructible(20, 0, "dead hobo");
+        criddler->attacker = new Attacker(10);
+        criddler->ai = new MonsterAi();
     }
 }
 
 void Map::addInitMonsters(){
-    //load monsters to their initial starting points
-    engine.actors.push(new Actor(29, 71, '@', TCODColor::desaturatedGreen, "Robbie"));
-    engine.actors.push(new Actor(18, 48, 'c', TCODColor::yellow, "Cillian"));
-    engine.actors.push(new Actor(51, 10, 'D', TCODColor::flame, "Diana"));
-    engine.actors.push(new Actor(25, 25, 'd', TCODColor::amber, "Honey"));
-    engine.actors.push(new Actor(52, 10, 'd', TCODColor::darkGrey, "Diaper"));
+    //set up static NPCs to their initial starting points
+
+    // People
+    auto aCillian = std::make_unique<Actor>(18, 48, 'c', TCODColor::yellow, "Cillian");
+    aCillian->blocks=true;
+    //aCillian->destructible = new MonsterDestructible(10, 2, "dead kid");
+    //aCillian->attacker = new Attacker(3);
+    aCillian->ai = new MonsterAi();
+
+    auto aRobbie = std::make_unique<Actor>(29, 71, 'R', TCODColor::silver, "Robbie");
+    aRobbie->blocks = true;
+    aRobbie->destructible = new MonsterDestructible(20, 0, "dead sasquatch");
+    aRobbie->attacker = new Attacker(4);
+    aRobbie->ai = new MonsterAi();
+
+    auto aDiana = std::make_unique<Actor>(51, 10, 'D', TCODColor::flame, "Diana");
+    aDiana->blocks=true;
+    aDiana->destructible = new MonsterDestructible(10, 2, "dead lady");
+    aDiana->attacker = new Attacker(3);
+    aDiana->ai = new MonsterAi();
+
+    // Dogs
+    auto aHoney = std::make_unique<Actor>(25, 25, 'd', TCODColor::amber, "Honey");
+    aHoney->blocks=true;
+    aHoney->destructible = new MonsterDestructible(10, 2, "dead dog");
+    aHoney->attacker = new Attacker(3);
+    aHoney->ai = new MonsterAi();
+
+    auto aDiaper = std::make_unique<Actor>(52, 10, 'd', TCODColor::darkGrey, "Diaper");
+    aDiaper->blocks=true;
+    aDiaper->destructible = new MonsterDestructible(10, 2, "dead dog");
+    aDiaper->attacker = new Attacker(2);
+    aDiaper->ai = new MonsterAi();
+
+    // Put them in the game
+    engine.actors.push_back(std::move(aHoney));
+    engine.actors.push_back(std::move(aDiana));
+    engine.actors.push_back(std::move(aCillian));
+    engine.actors.push_back(std::move(aDiaper));
+    engine.actors.push_back(std::move(aRobbie));
 
 
 }
@@ -258,9 +327,8 @@ bool Map::canWalk(int x, int y) const {
         // we can't walk through walls
         return false;
     }
-    for (auto i : engine.actors) {
-        Actor *actor = i;
-        if ( actor->x == x && actor->y == y ) {
+    for (const auto &actor : engine.actors) {
+        if ( actor->blocks && actor->x == x && actor->y == y ) {
             // there is an actor there. cannot walk
             return false;
         }
